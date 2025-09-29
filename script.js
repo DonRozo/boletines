@@ -2,56 +2,75 @@
 // Centro de Documentación – Histórico Boletines Estadísticos (PDF)
 // Org: https://cundinamarca-map.maps.arcgis.com
 // Grupo público: 90544ca09e6346f9bf965d7b751a1a73
+// Buscador: SOLO por título (cliente), sin acentos, multi-término (AND), con debounce.
 
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Configuración ---
+  // ---------- Configuración ----------
   const ORG_URL = 'https://cundinamarca-map.maps.arcgis.com';
   const GLOBAL_SEARCH_URL = 'https://www.arcgis.com/sharing/rest/search';
   const GROUP_ID = '90544ca09e6346f9bf965d7b751a1a73';
   const PAGE_SIZE = 12; // tarjetas por página
 
-  // --- Referencias DOM (coinciden con tu index.html / style.css) ---
-  const topicsContainer   = document.getElementById('topics');            // menú lateral
-  const currentTopicTitle = document.getElementById('currentTopicTitle'); // título del tema
-  const resultsContainer  = document.getElementById('resultsContainer');  // grid de tarjetas
-  const noResultsEl       = document.getElementById('noResults');         // mensaje vacío
-  const loadingEl         = document.getElementById('loading');           // “cargando…”
-  const searchInput       = document.getElementById('searchInput');       // búsqueda
-  const prevBtn           = document.getElementById('prevButton');        // carrusel <
-  const nextBtn           = document.getElementById('nextButton');        // carrusel >
+  // ---------- DOM ----------
+  const topicsContainer   = document.getElementById('topics');            // no visible, pero mantenido para compatibilidad
+  const currentTopicTitle = document.getElementById('currentTopicTitle');
+  const resultsContainer  = document.getElementById('resultsContainer');
+  const noResultsEl       = document.getElementById('noResults');
+  const loadingEl         = document.getElementById('loading');
+  const searchInput       = document.getElementById('searchInput');
+  const prevBtn           = document.getElementById('prevButton');
+  const nextBtn           = document.getElementById('nextButton');
 
-  // --- Estado ---
-  let allDocuments = [];
-  let filteredDocs = [];
-  let pageIndex = 0;
+  // ---------- Estado ----------
+  let allDocuments = [];   // resultados crudos
+  let filteredDocs = [];   // resultados filtrados
+  let pageIndex    = 0;
 
-  // --- Utilidades ---
+  // ---------- Utilidades ----------
   const setLoading = (v) => { if (loadingEl) loadingEl.style.display = v ? 'block' : 'none'; };
+
   const fmtDate = (ms) => {
     try { return new Date(ms).toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: '2-digit' }); }
-    catch { return ''; }
-  };
-  const arcgisDetailsUrl  = (id) => `${ORG_URL}/home/item.html?id=${id}`;
-  const arcgisDownloadUrl = (id) => `${ORG_URL}/sharing/rest/content/items/${id}/data`;
-  const arcgisThumbUrl = (item) => {
-    if (item.thumbnail) {
-      return `${ORG_URL}/sharing/rest/content/items/${item.id}/info/${encodeURIComponent(item.thumbnail)}`;
-    }
-    return 'https://cdn.jsdelivr.net/gh/tabler/tabler-icons/icons/file-type-pdf.svg'; // fallback
+    catch { return 'N/D'; }
   };
 
-  function iconAndType(itemType) {
-    const t = (itemType || '').toLowerCase();
-    if (t.includes('pdf'))           return { iconClass: 'fas fa-file-pdf',       label: 'PDF' };
-    if (t.includes('powerpoint'))    return { iconClass: 'fas fa-file-powerpoint',label: 'PowerPoint' };
-    if (t.includes('excel'))         return { iconClass: 'fas fa-file-excel',     label: 'Excel' };
-    if (t.includes('word'))          return { iconClass: 'fas fa-file-word',      label: 'Word' };
-    if (t.includes('csv'))           return { iconClass: 'fas fa-file-csv',       label: 'CSV' };
-    if (t.includes('image'))         return { iconClass: 'fas fa-image',          label: 'Imagen' };
-    return { iconClass: 'fas fa-file', label: 'Documento' };
+  const detailsUrl  = (id) => `${ORG_URL}/home/item.html?id=${id}`;
+  const downloadUrl = (id) => `${ORG_URL}/sharing/rest/content/items/${id}/data`;
+  const thumbUrl    = (item) =>
+    item.thumbnail
+      ? `${ORG_URL}/sharing/rest/content/items/${item.id}/info/${encodeURIComponent(item.thumbnail)}`
+      : 'https://cdn.jsdelivr.net/gh/tabler/tabler-icons/icons/file-type-pdf.svg';
+
+  const fileIconAndLabel = (typeStr) => {
+    const t = (typeStr || '').toLowerCase();
+    if (t.includes('pdf'))        return { icon: 'fas fa-file-pdf',        label: 'PDF' };
+    if (t.includes('powerpoint')) return { icon: 'fas fa-file-powerpoint', label: 'PowerPoint' };
+    if (t.includes('excel'))      return { icon: 'fas fa-file-excel',      label: 'Excel' };
+    if (t.includes('word'))       return { icon: 'fas fa-file-word',       label: 'Word' };
+    if (t.includes('csv'))        return { icon: 'fas fa-file-csv',        label: 'CSV' };
+    if (t.includes('image'))      return { icon: 'fas fa-image',           label: 'Imagen' };
+    return { icon: 'fas fa-file', label: 'Documento' };
+  };
+
+  // Normaliza: minúsculas + sin acentos + trim
+  const normalize = (s) =>
+    (s || '')
+      .toString()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+
+  // Debounce (para el buscador)
+  function debounce(fn, ms = 200) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(null, args), ms);
+    };
   }
 
-  // --- Render tarjetas ---
+  // ---------- Render ----------
   function renderPage() {
     resultsContainer.innerHTML = '';
 
@@ -61,37 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nextBtn) nextBtn.style.display = 'none';
       return;
     }
-
     noResultsEl.style.display = 'none';
 
     const start = pageIndex * PAGE_SIZE;
     const pageItems = filteredDocs.slice(start, start + PAGE_SIZE);
 
-    pageItems.forEach(doc => {
-      const fileInfo = iconAndType(doc.type);
-      const thumb = arcgisThumbUrl(doc);
-      const detailsUrl = arcgisDetailsUrl(doc.id);
-      const downloadUrl = arcgisDownloadUrl(doc.id);
-
+    pageItems.forEach(item => {
+      const { icon, label } = fileIconAndLabel(item.type);
       const card = document.createElement('div');
       card.className = 'document-card';
 
       card.innerHTML = `
         <div class="document-card-image-wrapper">
-          <img src="${thumb}" alt="Miniatura de ${doc.title || 'Documento'}" class="document-card-thumbnail">
+          <img src="${thumbUrl(item)}" alt="Miniatura de ${item.title || 'Documento'}" class="document-card-thumbnail">
         </div>
 
         <div class="document-card-content">
-          <h3>${doc.title || 'Título Desconocido'}</h3>
+          <h3>${item.title || 'Título desconocido'}</h3>
+
           <div class="file-info">
-            <i class="${fileInfo.iconClass}"></i>
-            ${fileInfo.label} — ${fmtDate(doc.modified) || 'N/D'}
+            <i class="${icon}"></i>
+            ${label} — ${fmtDate(item.modified)}
           </div>
-          <p class="description">${doc.snippet || doc.description || 'Sin descripción disponible.'}</p>
+
+          <p class="description">${item.snippet || item.description || ''}</p>
 
           <div class="document-card-actions">
-            <a href="${downloadUrl}" target="_blank" rel="noopener noreferrer" class="download-button">Descargar</a>
-            <a href="${detailsUrl}"  target="_blank" rel="noopener noreferrer" class="details-button">Ver Detalles</a>
+            <a href="${downloadUrl(item.id)}" target="_blank" rel="noopener noreferrer" class="download-button">Descargar</a>
+            <a href="${detailsUrl(item.id)}"  target="_blank" rel="noopener noreferrer" class="details-button">Ver Detalles</a>
           </div>
         </div>
       `;
@@ -110,19 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ---------- Búsqueda (SOLO título) ----------
   function applySearch() {
-    const q = (searchInput?.value || '').trim().toLowerCase();
-    filteredDocs = !q
-      ? [...allDocuments]
-      : allDocuments.filter(it =>
-          (it.title || '').toLowerCase().includes(q) ||
-          (it.snippet || '').toLowerCase().includes(q)
-        );
+    const q = normalize(searchInput?.value);
+    if (!q) {
+      filteredDocs = [...allDocuments];
+    } else {
+      const terms = q.split(/\s+/).filter(Boolean); // varios términos (AND)
+      filteredDocs = allDocuments.filter((it) => {
+        const title = normalize(it.title);
+        return terms.every((t) => title.includes(t));
+      });
+    }
     pageIndex = 0;
     renderPage();
   }
 
-  // --- REST helpers ---
+  // ---------- REST helpers ----------
   async function fetchJSON(url) {
     const resp = await fetch(url, { method: 'GET' });
     if (!resp.ok) {
@@ -138,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return data;
   }
 
-  // Preferimos el buscador global de ArcGIS (más tolerante)
+  // 1) Búsqueda global (www.arcgis.com) —más tolerante a políticas de la org
   async function searchByGlobal(groupId) {
     const q = `group:"${groupId}" AND type:PDF`;
     const url = `${GLOBAL_SEARCH_URL}?f=json&num=100&sortField=modified&sortOrder=desc&q=${encodeURIComponent(q)}`;
@@ -153,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
   }
 
-  // Fallback: contenido del grupo en la org
+  // 2) Fallback: contenido del grupo en la org
   async function searchByGroupContent(groupId) {
     const url = `${ORG_URL}/sharing/rest/content/groups/${groupId}?f=json&num=100&sortField=modified&sortOrder=desc`;
     const data = await fetchJSON(url);
@@ -170,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }));
   }
 
-  // --- Carga principal ---
+  // ---------- Carga principal ----------
   async function loadDocuments() {
     currentTopicTitle.textContent = 'Histórico Boletines Estadísticos';
     setLoading(true);
@@ -181,11 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
     filteredDocs = [];
 
     try {
+      // Intento 1: buscador global
       let results = await searchByGlobal(GROUP_ID);
+
+      // Si no hay nada, fallback a contenido del grupo
       if (!results.length) {
         console.warn('Global search devolvió 0; probando contenido del grupo…');
         results = await searchByGroupContent(GROUP_ID);
       }
+
       allDocuments = results;
       filteredDocs = [...allDocuments];
 
@@ -193,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         noResultsEl.style.display = 'block';
         noResultsEl.textContent = 'No se encontraron documentos en el grupo.';
       }
+
       renderPage();
     } catch (err) {
       console.error('Error consultando el portal:', err);
@@ -203,32 +228,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Menú lateral (un único tema en esta app) ---
+  // ---------- (Opcional) Menú lateral único ----------
   function renderTopics() {
     if (!topicsContainer) return;
     topicsContainer.innerHTML = '';
     const link = document.createElement('a');
     link.href = '#';
-    link.className = 'active'; // tu CSS usa .active para resaltar
+    link.className = 'active';
     link.innerHTML = `<i class="fas fa-chart-line"></i><span>Histórico Boletines Estadísticos</span>`;
     link.addEventListener('click', (e) => { e.preventDefault(); loadDocuments(); });
     topicsContainer.appendChild(link);
   }
 
-  // --- Eventos UI ---
+  // ---------- Listeners UI ----------
   prevBtn?.addEventListener('click', () => {
     if (pageIndex > 0) { pageIndex--; renderPage(); }
   });
+
   nextBtn?.addEventListener('click', () => {
     const totalPages = Math.ceil(filteredDocs.length / PAGE_SIZE);
     if (pageIndex < totalPages - 1) { pageIndex++; renderPage(); }
   });
+
   if (searchInput) {
-    searchInput.addEventListener('input', applySearch);
+    const applySearchDebounced = debounce(applySearch, 200);
+    searchInput.addEventListener('input', applySearchDebounced);
     searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') applySearch(); });
   }
 
-  // --- Inicio ---
+  // ---------- Inicio ----------
   renderTopics();
   loadDocuments();
 });
