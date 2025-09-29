@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Define tus grupos con sus IDs, nombres y un ícono de Font Awesome
     const groups = [
-        { id: 'e315c46bba3645899d08401914067a4a', name: 'Boletines', icon: 'fas fa-chart-line' }
+        { id: '90544ca09e6346f9bf965d7b751a1a73', name: 'Boletines', icon: 'fas fa-chart-line' }
         
     ];
 
