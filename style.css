@@ -2,7 +2,8 @@
    Centro de Documentación – Estilos principales
    - Color principal: #1797D1
    - Miniatura con fondo blanco
-   - Botones tipo pill (redondeados y más grandes)
+   - Botones tipo pill
+   - Descripción con barra de desplazamiento
    ========================================================= */
 
 :root{
@@ -100,7 +101,7 @@ body{
 
 /* Miniatura – FONDO BLANCO */
 .document-card-image-wrapper{
-  background:#FFFFFF;                 /* solicitado */
+  background:#FFFFFF;
   border:1px solid var(--line);
   border-radius:12px;
   display:flex; align-items:center; justify-content:center;
@@ -131,22 +132,34 @@ body{
 }
 .file-info i{color:var(--text-muted)}
 
-/* Descripción: sin barras de scroll; recorte elegante */
+/* Descripción con barra de desplazamiento (RESTABLECIDO) */
 .description{
   color:var(--text);
   font-size:15px;
   line-height:1.6;
-  display:-webkit-box;
-  -webkit-line-clamp:6;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+  max-height:160px;           /* alto visible antes de scroll */
+  overflow:auto;              /* habilita scroll */
+  padding-right:8px;          /* evita superposición con la barra */
+  scrollbar-gutter: stable;   /* evita “saltos” al aparecer el scroll */
+  /* Estilo de barra (Firefox / WebKit) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.description::-webkit-scrollbar{ width:8px; }
+.description::-webkit-scrollbar-track{ background:transparent; }
+.description::-webkit-scrollbar-thumb{
+  background:var(--line);
+  border-radius:8px;
+}
+.description::-webkit-scrollbar-thumb:hover{
+  background:#cfd6de;
 }
 
 /* -------- Botones (pill) -------- */
 .document-card-actions{
   margin-top:auto;
   display:flex;
-  gap:14px;                /* más espacio entre botones */
+  gap:14px;
   flex-wrap:wrap;
 }
 
@@ -159,7 +172,7 @@ body{
   cursor:pointer;
   border-radius:9999px;     /* pill redondeado */
   padding:12px 18px;        /* más grandes */
-  min-height:40px;          /* tacto cómodo */
+  min-height:40px;
   font-weight:700;
   font-size:15px;
   line-height:1.1;
