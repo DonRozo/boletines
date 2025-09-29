@@ -7,13 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Define tus grupos con sus IDs, nombres y un ícono de Font Awesome
     const groups = [
-        { id: 'e315c46bba3645899d08401914067a4a', name: 'Boletines', icon: 'fas fa-chart-line' },
-        { id: 'bfb7793342cd49ed90983bd92e27976b', name: 'Banco de Proyectos', icon: 'fas fa-lightbulb' },
-        { id: '3ccdb1a9fad240f0a6a82b83caf68515', name: 'PAC', icon: 'fas fa-chart-line' },
-        { id: '9896bfb876b946fb9cc03d1567d79f99', name: 'PAP', icon: 'fas fa-file-alt' },
-        { id: '1b23f651be764468b680750e8b3925f3', name: 'PGAR', icon: 'fas fa-leaf' },
-        { id: 'fd47bc821dda4687a99ce5a1255e9088', name: 'PRESUPUESTO', icon: 'fas fa-dollar-sign' },
-        { id: '2e2bb993d2dd414b9d77b2b5512bfce8', name: 'SIGESPU', icon: 'fas fa-database' }
+        { id: 'e315c46bba3645899d08401914067a4a', name: 'Boletines', icon: 'fas fa-chart-line' }
+        
     ];
 
     // --- Referencias a Elementos del DOM ---
