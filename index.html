@@ -1,51 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Documentación</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Histórico Boletines Estadísticos</title>
+
+  <!-- Fuente e iconos -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h3>Centro de Documentación</h3>
-            </div>
-            <nav class="sidebar-nav">
-                <ul id="topic-list">
-                    </ul>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="main-header">
-                <div class="search-bar-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar documentos">
-                    </div>
-            </header>
-
-            <section class="documents-section">
-                <h2 id="currentTopicTitle" class="current-topic-title"></h2>
-                
-                <div id="loading" class="loading" style="display: none;">Cargando documentos...</div>
-                
-                <div class="carousel-container">
-                    <div id="resultsContainer" class="document-grid">
-                        </div>
-                    <button class="carousel-button prev" id="prevButton"><i class="fas fa-chevron-left"></i></button>
-                    <button class="carousel-button next" id="nextButton"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                
-                <p id="noResults" class="no-results" style="display: none;">No se encontraron documentos que coincidan con su búsqueda o filtro.</p>
-            </section>
-        </main>
+  <header class="topbar">
+    <div class="container">
+      <div class="searchbar">
+        <i class="fas fa-search"></i>
+        <input id="searchInput" type="search" placeholder="Buscar documentos" aria-label="Buscar documentos" />
+      </div>
     </div>
+  </header>
 
-    <script src="script.js"></script>
+  <main class="container">
+    <!-- Título -->
+    <h2 id="currentTopicTitle" class="page-title">Histórico Boletines Estadísticos</h2>
+
+    <!-- Mensajes -->
+    <div id="loading" class="state state-loading" style="display:none;">Cargando…</div>
+    <p id="noResults" class="state state-empty" style="display:none;">No se encontraron documentos en el grupo.</p>
+
+    <!-- Resultados -->
+    <section id="resultsContainer" class="results-grid"></section>
+
+    <!-- Navegación -->
+    <div class="pager">
+      <button id="prevButton" class="btn btn-outline" type="button">Anterior</button>
+      <button id="nextButton" class="btn btn-outline" type="button">Siguiente</button>
+    </div>
+  </main>
+
+  <!-- Elemento opcional (no visible) para compatibilidad con script.js si lo necesitas -->
+  <nav id="topics" style="display:none;"></nav>
+
+  <script src="script.js"></script>
 </body>
 </html>

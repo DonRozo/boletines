@@ -1,492 +1,137 @@
-/* Importar fuentes de Google Fonts: Montserrat y Roboto */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&display=swap');
-
-/* Variables para colores y tipografía */
-:root {
-    --primary-green: #009C9C; /* Nuevo color principal para acentos y botones */
-    --hover-green: #007777;   /* Un tono más oscuro para el hover */
-    --text-dark: #333;
-    --text-light: #666;
-    --bg-light: #f8f9fa; /* Fondo claro general */
-    --bg-white: #ffffff;
-    --border-color: #e0e0e0;
-    --shadow-light: rgba(0, 0, 0, 0.05);
-    --shadow-medium: rgba(0, 0, 0, 0.1);
-    --sidebar-width: 250px; /* Ancho del menú lateral */
-    --header-height: 80px; /* Altura de la barra superior de búsqueda */
-    --font-primary: 'Montserrat', sans-serif; /* Fuente principal */
-    --font-secondary: 'Roboto', sans-serif; /* Fuente secundaria para descripciones */
+:root{
+  --primary:#1797D1;              /* color principal actualizado */
+  --primary-600:#1384B8;
+  --primary-100:#E6F3FA;
+  --bg:#F6F7F9;
+  --card:#FFFFFF;
+  --text:#1F2937;
+  --text-muted:#6B7280;
+  --line:#E5E7EB;
+  --radius:18px;
+  --shadow:0 6px 18px rgba(16,24,40,.08);
 }
 
-/* Reset básico y estilos generales */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  color:var(--text);
+  background:var(--bg);
 }
 
-body {
-    font-family: var(--font-primary);
-    line-height: 1.6;
-    color: var(--text-dark);
-    background-color: var(--bg-light);
-    min-height: 100vh; /* Asegura que el body ocupe toda la altura */
-    display: flex;
-    flex-direction: column; /* Para que el footer (si existiera) se ancle al final */
+/* Layout */
+.container{
+  max-width:1200px;
+  margin-inline:auto;
+  padding-inline:24px;
 }
 
-/* --- Contenedor Principal de la Aplicación --- */
-.app-container {
-    display: flex;
-    flex: 1; /* Permite que el contenedor de la app ocupe el espacio restante */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:#fff; border-bottom:1px solid var(--line);
+  padding:12px 0;
 }
 
-/* --- Sidebar (Menú Lateral) --- */
-.sidebar {
-    width: var(--sidebar-width);
-    background-color: var(--bg-white);
-    box-shadow: 2px 0 10px var(--shadow-light);
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-    position: sticky; 
-    top: 0;
-    height: 100vh; /* Asegura que ocupe toda la altura de la vista */
-    overflow-y: auto; /* Permite scroll interno si el contenido es largo */
+/* Buscador */
+.searchbar{
+  position:relative; display:flex; align-items:center;
+  gap:12px; background:#fff; border:1px solid var(--line);
+  border-radius:999px; padding:10px 16px;
+  box-shadow:var(--shadow);
+}
+.searchbar i{color:var(--text-muted)}
+.searchbar input{
+  width:100%; border:none; outline:none; font-size:16px; background:transparent;
+  color:var(--text);
 }
 
-.sidebar-header {
-    padding: 0 20px 20px;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 20px;
+/* Título */
+.page-title{
+  font-size:28px; font-weight:700; margin:22px 0 14px;
 }
 
-.sidebar-header h2 {
-    font-size: 1.6em; /* REDUCIDO: Tamaño de fuente para "Centro de Documentación" */
-    font-weight: 700;
-    color: var(--text-dark);
-    white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
-    overflow: hidden; /* Oculta cualquier parte que se desborde */
-    text-overflow: ellipsis; /* Añade puntos suspensivos si el texto es demasiado largo */
+/* Estados */
+.state{margin:24px 0; color:var(--text-muted); text-align:center}
+.state-loading{font-style:italic}
+.state-empty{}
+
+/* Grid de resultados (lista vertical) */
+.results-grid{
+  display:flex; flex-direction:column; gap:18px;
 }
 
-.sidebar-nav ul {
-    list-style: none;
+/* Tarjeta documento */
+.document-card{
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:18px; display:grid; grid-template-columns:240px 1fr;
+  gap:20px; align-items:stretch;
 }
 
-.sidebar-nav li a {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: var(--text-light);
-    text-decoration: none;
-    font-size: 1em;
-    font-weight: 500;
-    transition: background-color 0.2s ease, color 0.2s ease;
+/* Contenedor miniatura: FONDO BLANCO (cambio solicitado) */
+.document-card-image-wrapper{
+  background:#FFFFFF;                 /* <-- blanco */
+  border:1px solid var(--line);
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  min-height:170px; padding:10px;
+}
+.document-card-thumbnail{
+  max-width:100%; height:170px; object-fit:contain; display:block;
 }
 
-.sidebar-nav li a .fas {
-    margin-right: 15px;
-    font-size: 1.1em;
-    color: #999;
+/* Contenido */
+.document-card-content{display:flex; flex-direction:column; gap:10px}
+.document-card-content h3{
+  margin:0; font-size:22px; line-height:1.25; font-weight:700; color:var(--text);
+}
+.file-info{
+  color:var(--text-muted); font-size:14px; display:flex; align-items:center; gap:8px;
+}
+.file-info i{color:var(--text-muted)}
+.description{
+  color:var(--text); font-size:15px; line-height:1.6;
+  max-height:4.5em; overflow:auto; /* permite scroll si es muy larga */
+  padding-right:4px;
 }
 
-.sidebar-nav li a:hover {
-    background-color: var(--bg-light);
-    color: var(--primary-green);
+/* Acciones */
+.document-card-actions{
+  margin-top:auto; display:flex; gap:10px; flex-wrap:wrap;
+}
+.btn{
+  appearance:none; border:none; cursor:pointer;
+  border-radius:10px; padding:10px 14px; font-weight:600; font-size:14px;
+  transition:transform .04s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn:active{transform:translateY(1px)}
+
+/* Botones principales/contorno usando color nuevo */
+.download-button, .btn-primary{
+  background:var(--primary); color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+}
+.download-button:hover, .btn-primary:hover{background:var(--primary-600); color:#fff}
+
+.details-button, .btn-outline{
+  background:#fff; color:var(--primary); border:1px solid var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+}
+.details-button:hover, .btn-outline:hover{
+  background:var(--primary-100); border-color:var(--primary-600); color:var(--primary-600);
 }
 
-.sidebar-nav li a.active {
-    background-color: var(--primary-green);
-    color: var(--bg-white);
-    border-radius: 0 50px 50px 0;
-    margin-right: 15px;
-    box-shadow: 0 2px 5px var(--shadow-medium);
+/* Paginación */
+.pager{
+  display:flex; gap:10px; justify-content:center; margin:22px 0 40px;
 }
 
-.sidebar-nav li a.active .fas {
-    color: var(--bg-white);
+/* Responsivo */
+@media (max-width: 900px){
+  .document-card{grid-template-columns:1fr}
+  .document-card-thumbnail{height:150px}
 }
-
-/* --- Contenido Principal (Main Content) --- */
-.main-content {
-    flex: 1;
-    padding: 0;
-    background-color: var(--bg-light);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-/* Encabezado Principal con Barra de Búsqueda */
-.main-header {
-    background-color: var(--bg-white);
-    padding: 20px 30px;
-    box-shadow: 0 2px 5px var(--shadow-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: var(--header-height);
-    margin-bottom: 20px;
-}
-
-.search-bar-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 600px;
-    background-color: var(--bg-light);
-    border-radius: 25px;
-    padding: 8px 15px;
-    border: 1px solid var(--border-color);
-    box-shadow: inset 0 1px 3px var(--shadow-light);
-}
-
-.search-icon {
-    color: #999;
-    margin-right: 10px;
-    font-size: 1.1em;
-}
-
-#searchInput {
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 1em;
-    padding: 5px 0;
-    color: var(--text-dark);
-}
-
-#searchInput::placeholder {
-    color: #b0b0b0;
-}
-
-/* Sección de Documentos y Resultados */
-.documents-section {
-    padding: 0 30px 30px;
-    flex: 1;
-}
-
-.current-topic-title {
-    font-size: 1.6em;
-    font-weight: 700;
-    color: var(--text-dark);
-    margin-bottom: 20px;
-    text-align: left;
-}
-
-.loading, .no-results {
-    text-align: center;
-    font-style: italic;
-    color: var(--text-light);
-    padding: 30px 0;
-    font-size: 1.1em;
-}
-
-/* --- Contenedor de Documentos (Lista Vertical) --- */
-.document-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Siempre una columna */
-    gap: 25px; /* Espacio entre las tarjetas */
-    padding-bottom: 20px;
-}
-
-/* Ocultar botones de carrusel ya que no se usará el carrusel horizontal */
-.carousel-container .carousel-button {
-    display: none !important;
-}
-
-/* --- Estilos para la Tarjeta de Documento (Horizontal - Final) --- */
-.document-card {
-    background-color: var(--bg-white);
-    border-radius: 8px;
-    box-shadow: 0 4px 10px var(--shadow-light);
-    overflow: hidden;
-    display: flex; /* La tarjeta es un flex container horizontal */
-    flex-direction: row; /* Elementos internos en fila */
-    align-items: stretch; /* Estirar los elementos para que ocupen toda la altura de la tarjeta */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    width: 100%; /* La tarjeta ocupa todo el ancho disponible en la cuadrícula */
-    height: 220px; /* Altura de la tarjeta */
-}
-
-.document-card:hover {
-    transform: translateY(-3px); /* Menor elevación al hover */
-    box-shadow: 0 6px 12px var(--shadow-medium);
-}
-
-.document-card-image-wrapper { /* Contenedor para la imagen */
-    padding: 15px; /* Padding alrededor de la imagen dentro de la tarjeta */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0; /* Evita que la imagen se encoja */
-}
-
-.document-card-thumbnail {
-    width: 300px; /* Ancho fijo */
-    height: 200px; /* Altura fija */
-    object-fit: cover; /* Recorta la imagen para cubrir el área */
-    display: block;
-    background-color: #eee;
-    border-radius: 8px; /* Bordes redondeados para la imagen */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Sombra para la imagen */
-}
-
-.document-card-content {
-    padding: 18px;
-    flex-grow: 1; /* El contenido ocupa el espacio restante */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Espacia el título, descripción y botones */
-    overflow: hidden; /* Oculta el desbordamiento de texto */
-}
-
-.document-card h3 {
-    font-size: 1.25em;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-top: 0;
-    margin-bottom: 5px; /* Ajustado: Menor margen debajo del título */
-}
-
-.document-card .file-info { /* Nuevo estilo para el tipo de archivo y tamaño */
-    font-family: var(--font-secondary);
-    font-size: 0.85em; /* Tamaño de fuente para la información del archivo */
-    color: var(--text-light);
-    font-weight: bold; /* Negrilla */
-    margin-bottom: 10px; /* Espacio debajo de la info del archivo */
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Espacio entre el ícono y el texto */
-}
-
-.document-card .file-info .fas { /* Estilo para el ícono del tipo de archivo */
-    font-size: 0.9em;
-    color: #999;
-}
-
-
-.document-card p.description {
-    font-family: var(--font-secondary);
-    font-size: 0.95em;
-    color: var(--text-light);
-    margin-bottom: 10px; /* Menor margen inferior para la descripción */
-    flex-grow: 1; /* Permite que la descripción ocupe el espacio */
-    line-height: 1.5;
-    overflow-y: auto; /* Permite scroll vertical si el texto es muy largo */
-    
-    /* Custom scrollbar para Webkit (Chrome, Safari) */
-    &::-webkit-scrollbar {
-        width: 8px;
-        background-color: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2);
-        border-radius: 4px;
-    }
-    &::-webkit-scrollbar-track {
-        background-color: transparent;
-    }
-    /* Custom scrollbar para Firefox */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-.document-card-actions {
-    display: flex;
-    gap: 5px; /* Mantiene el espacio entre los botones */
-    margin-top: auto;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color);
-}
-
-.document-card-actions a {
-    display: block;
-    flex: 0 1 50%; /* REDUCIDO: Cada botón ocupa el 50% del espacio, sin crecer mucho */
-    max-width: 120px; /* REDUCIDO: Ancho máximo para cada botón */
-    padding: 5px 8px; /* REDUCIDO: Menor padding para botones más pequeños */
-    border-radius: 5px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 0.8em; /* REDUCIDO: Tamaño de fuente más pequeño para botones */
-    font-weight: 500;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    white-space: nowrap; /* Evita que el texto de los botones se rompa */
-    overflow: hidden; /* Oculta si el texto es muy largo */
-    text-overflow: ellipsis; /* Puntos suspensivos si el texto se corta */
-}
-
-.download-button {
-    background-color: var(--primary-green);
-    color: white;
-    border: 1px solid var(--primary-green);
-}
-
-.download-button:hover {
-    background-color: var(--hover-green);
-    transform: translateY(-1px);
-}
-
-.details-button {
-    background-color: transparent;
-    color: var(--primary-green);
-    border: 1px solid var(--primary-green);
-}
-
-.details-button:hover {
-    background-color: var(--bg-light);
-    color: var(--hover-green);
-    transform: translateY(-1px);
-}
-
-/* --- Media Queries para Responsive Design --- */
-@media (max-width: 992px) {
-    .sidebar {
-        width: 80px;
-        padding: 15px 0;
-    }
-    .sidebar-header h2 {
-        display: none;
-    }
-    .sidebar-nav li a {
-        flex-direction: column;
-        padding: 10px 5px;
-        font-size: 0.75em;
-        text-align: center;
-    }
-    .sidebar-nav li a .fas {
-        margin-right: 0;
-        margin-bottom: 5px;
-        font-size: 1.3em;
-    }
-    .sidebar-nav li a.active {
-        margin-right: 0;
-        border-radius: 8px;
-    }
-    .main-content {
-        margin-left: 0;
-    }
-    .main-header {
-        padding: 15px 20px;
-    }
-    .documents-section {
-        padding: 0 20px 20px;
-    }
-    .document-card {
-        height: 180px; /* Altura ajustada para pantallas medianas */
-    }
-    .document-card-image-wrapper {
-        padding: 10px;
-    }
-    .document-card-thumbnail {
-        width: 180px; /* Ajusta ancho de imagen en pantallas medianas */
-        height: 160px; /* Ajusta altura de imagen en pantallas medianas */
-    }
-    .document-card p.description {
-        -webkit-line-clamp: unset; /* Desactiva line-clamp cuando hay scroll */
-        overflow-y: auto; /* Agrega scroll para la descripción en responsive */
-    }
-    .document-card-actions a {
-        padding: 5px 8px; /* Ajusta padding para botones en responsive */
-        font-size: 0.7em; /* Ajusta tamaño de fuente */
-        max-width: 100px; /* Ajuste para que encajen mejor */
-    }
-}
-
-@media (max-width: 768px) {
-    .app-container {
-        flex-direction: column;
-    }
-    .sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        justify-content: center;
-        padding: 10px 0;
-        box-shadow: 0 2px 5px var(--shadow-light);
-    }
-    .sidebar-header {
-        display: none;
-    }
-    .sidebar-nav ul {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        width: 100%;
-    }
-    .sidebar-nav li {
-        flex: 1 1 auto;
-        margin: 5px;
-    }
-    .sidebar-nav li a {
-        background-color: var(--primary-green);
-        color: white;
-        border-radius: 5px;
-        padding: 8px 10px;
-        font-size: 0.9em;
-        transition: background-color 0.2s ease;
-        flex-direction: row;
-        justify-content: center;
-    }
-    .sidebar-nav li a .fas {
-        margin-right: 8px;
-        margin-bottom: 0;
-        font-size: 1em;
-        color: white;
-    }
-    .sidebar-nav li a.active {
-        background-color: var(--hover-green);
-        border-radius: 5px;
-        margin-right: 0;
-    }
-    .main-content {
-        padding-top: 0;
-    }
-    .document-card {
-        height: 150px; /* Altura de tarjeta más pequeña en móviles */
-    }
-    .document-card-image-wrapper {
-        padding: 8px;
-    }
-    .document-card-thumbnail {
-        width: 140px; /* Ancho de la imagen aún más reducido */
-        height: 130px; /* Altura de la imagen aún más reducida */
-    }
-    .carousel-button {
-        display: none !important;
-    }
-    .document-grid.carousel {
-        padding: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-header, .documents-section {
-        padding: 15px;
-    }
-    .document-card {
-        height: 120px; /* Altura de tarjeta más pequeña en móviles muy pequeños */
-    }
-    .document-card-image-wrapper {
-        padding: 5px;
-    }
-    .document-card-thumbnail {
-        width: 100px; /* Ancho de la imagen aún más reducido */
-        height: 100px; /* Altura de la imagen aún más reducida */
-    }
-    .document-card h3 {
-        font-size: 1.1em;
-    }
-    .document-card p.description {
-        font-size: 0.85em;
-        -webkit-line-clamp: 2; /* Limita a 2 líneas en móviles muy pequeños */
-        overflow-y: hidden; /* Oculta scroll en pantallas muy pequeñas para mayor legibilidad */
-    }
-    .document-card-actions a {
-        font-size: 0.75em;
-        padding: 6px 8px;
-    }
+@media (max-width: 600px){
+  .page-title{font-size:22px}
+  .document-card{padding:14px}
+  .document-card-thumbnail{height:130px}
 }
