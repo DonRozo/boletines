@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Configuración Global ---
-    const ORGANIZATION_BASE_URL = 'https://cundinamarca-map.maps.arcgis.com/';
+    const ORGANIZATION_BASE_URL = 'https://cundinamarca-map.maps.arcgis.com';
     const AGO_GROUP_SEARCH_SUFFIX = '/sharing/rest/content/groups/';
     const AGO_ITEM_DATA_SUFFIX = '/sharing/rest/content/items/';
     const AGO_ITEM_DETAILS_URL = `${ORGANIZATION_BASE_URL}/home/item.html?id=`;
